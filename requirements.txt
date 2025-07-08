@@ -2,3 +2,4 @@ Flask
 rapidfuzz
 gunicorn
 openai
+python-dotenv
