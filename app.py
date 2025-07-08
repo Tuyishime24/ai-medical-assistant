@@ -4,12 +4,13 @@ import os
 from dotenv import load_dotenv
 from datetime import datetime
 
+# Load environment variables
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 app = Flask(__name__)
 
-# In-memory "database" to store patient info and diagnosis for demo purpose
+# In-memory patient database (for demo purposes)
 patients_db = {}
 
 @app.route("/", methods=["GET", "POST"])
@@ -20,7 +21,7 @@ def index():
     hospital_name = None
     symptoms = None
     test_results = None
-    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Current server time
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     if request.method == "POST":
         if "search_patient" in request.form:
@@ -36,7 +37,7 @@ def index():
             else:
                 diagnosis = f"No records found for patient: {patient_name}"
         else:
-            # Diagnosis submission
+            # Handle diagnosis submission
             patient_name = request.form["patient_name"].strip()
             submitted_by = request.form["submitted_by"].strip()
             hospital_name = request.form["hospital_name"].strip()
@@ -61,7 +62,7 @@ def index():
                 )
                 diagnosis = response["choices"][0]["message"]["content"]
 
-                # Save to "database"
+                # Save record
                 patients_db[patient_name] = {
                     "submitted_by": submitted_by,
                     "hospital_name": hospital_name,
@@ -84,5 +85,7 @@ def index():
         current_time=current_time
     )
 
+# ✅ This line makes it work on Render or other cloud platforms
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
